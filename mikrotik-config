@@ -1,0 +1,10 @@
+# You can replace web server url, testing IP address and link type (currently LTE) 
+
+/tool/netwatch
+add disabled=no down-script="" host=8.8.8.8 http-codes="" interval=1m test-script=\
+    ":local tresult (\$\"loss-percent\")\r\
+    \n:local rttAvg (\$\"rtt-avg\")\r\
+    \n:local thisbox [/system identity get name]\r\
+    \n\r\
+    \n/tool fetch output=none url=\"https://www.pathofmyphpserver.com.au/status.php/\$thisbox/LTE/\$tresult/\$rttAvg\"" type=icmp up-script=""
+
