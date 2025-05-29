@@ -2,9 +2,8 @@
 // Status php proxy to send status from Mikrotik to alerta
 // Matt Perkins May 2025 
 
-// URL of Alerta Server
-// $url = 'http://192.168.0.2:8080/api/heartbeat';
-$minimum_rtt = 100000 ; 
+$url = 'http://192.168.0.2:8080/api/heartbeat';
+$minimum_rtt = 100000 ; //100ms 
 
 // API key header
 $headers = [
@@ -22,9 +21,14 @@ list($xx,$mikrotik_host,$link_type,$link_loss,$link_rtt) = explode ("/",$path_in
 echo "$mikrotik_host  $link_type  $link_loss  $link_rtt "; 
 
 // If we get a bad result either high rtt or not zero loss
-if($link_loss != 0 | $link_rtt < $minimum_rtt ){
+//
+if($link_rtt > $minimum_rtt){ 
+	echo "exit - high rtt\n";
+	exit();
+}
 
-	//echo "got here"; 
+if($link_loss == 0 ){
+
 
 // JSON payload
 $data = [
@@ -59,7 +63,7 @@ $response = curl_exec($ch);
 if (curl_errno($ch)) {
     echo 'cURL error: ' . curl_error($ch);
 } else {
-   //print_r($data);
+   echo "exit - 100% loss"; 
 }
 
 // Close cURL handle
