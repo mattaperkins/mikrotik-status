@@ -1,6 +1,6 @@
 <?php
 // Status php proxy to send status from Mikrotik to alerta
-// Matt Perkins May 2025 
+// Matt Perkins June 2025 
 
 $url = 'http://192.168.0.2:8080/api/';
 $minimum_rtt = 250000 ; //250ms 
@@ -8,14 +8,13 @@ $lockpath="/dev/shm";
 
 // API key header
 $headers = [
-    'Authorization: Key your-api-key',
+    'Authorization: Key my-api-key',
     'Content-Type: application/json',
 ];
 
 
 // Load infomation from mikrotik.
 $path_info  = $_SERVER["PATH_INFO"];
-//$path_info = "status.php./bbchiro.mk/ZT/0/2549"; 
 $path_info = preg_replace('#[^a-zA-Z0-9_\-/.]#', '', $path_info);
 list($xx,$mikrotik_host,$link_type,$link_loss,$link_rtt) = explode ("/",$path_info);
 
@@ -26,7 +25,7 @@ echo "$mikrotik_host  $link_type  $link_loss  $link_rtt ";
 $ms_link_rtt = $link_rtt/1000;
 if($link_rtt > $minimum_rtt){ 
 
-$fp = fopen("$lockpath/$mikrotik_host",'c');
+$fp = fopen("$lockpath/$mikrotik_host-$link_type",'c');
 
 if(!$fp){
 	die("cold not open lock file");
@@ -82,7 +81,7 @@ curl_close($ch);
 
 }else{
 // Clear latency message
-	if (is_file("$lockpath/$mikrotik_host")) {
+	if (is_file("$lockpath/$mikrotik_host-$link_type")) {
 
 // Build the JSON payload as an array
 $data = [
@@ -128,7 +127,7 @@ if ($response === false) {
     echo 'Alarm Response: ' . $response;
 }
 
-unlink("$lockpath/$mikrotik_host"); 
+unlink("$lockpath/$mikrotik_host-$link_type"); 
 
 } 
 
